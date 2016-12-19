@@ -6,18 +6,16 @@ function pdftvtpl2_do_shortcode(){
 
 	if(!is_user_logged_in()){
 
-	if ( $GLOBALS['pagenow'] === 'wp-login.php' ) {}else{
-
-
+		if ( $GLOBALS['pagenow'] === 'wp-login.php' ) {}else{
 		
-		if(is_page('create-newsletter')){
-		
-			wp_redirect( wp_login_url(site_url('create-newsletter')) );
-			exit;
-		
-		}
-		
-	}	
+			if(is_page('create-newsletter')){
+			
+				wp_redirect( wp_login_url(site_url('create-newsletter')) );
+				exit;
+			
+			}
+			
+		}	
 
 
 	}	
@@ -27,8 +25,7 @@ function pdftvtpl2_do_shortcode(){
 	$step1 = (get_post_meta($pid,'step1',true) ?: 'javascript:void(0);');
 	$step2 = (get_post_meta($pid,'step2',true) ?: 'javascript:void(0);');
 	$step3 = (get_post_meta($pid,'step3',true) ?: 'javascript:void(0);');
-	$step4 = (get_post_meta($pid,'step4',true) ?: 'javascript:void(0);');
-	
+	$step4 = (get_post_meta($pid,'step4',true) ?: 'javascript:void(0);');	
 	
 	$disabled1 = "disabled";
 	$disabled2 = "disabled";

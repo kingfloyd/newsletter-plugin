@@ -1522,17 +1522,24 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 			}else{
 				
 				$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'saveCSVfunction',csvurl:attachment.url}}).then(function(response) {
-
-				$scope.csvData = response.data.records;						
-				pdfcr('#table_id').DataTable().fnReloadAjax();
-			
+		
+				pdfcr('#table_id').DataTable().destroy();
+	
+				
+				$scope.csvData = response.data.records;	
+				
+				
 				$timeout(function () {
-				$scope.csvwrap = false;	
+					pdfcr('#table_id').DataTable();
 				
-				}, 2000);
+				}, 500);
 					
-				
+				$scope.csvwrap = false;	
 			
+			
+			
+				$scope.csvwrap = false;	
+		
 			
 				});
 			
@@ -1552,13 +1559,14 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 			var ind = pdfcr(this).val();
 
 			table
-			.row( pdfcr('#table_id tbody #toRemove'+ind).remove() )
+			.row( pdfcr('#table_id tbody #toRemove'+ind) )
 			.remove()
 			.draw();			
 			
 			
 		});		
 
+		//alert(selected);
 			
 		$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'deleteTableContent',table_action:value,selected:selected.join()}}).then(function(response) {
 

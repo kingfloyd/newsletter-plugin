@@ -1,59 +1,59 @@
 <?php
 
 // declare array and call it as global
-	$user_id = get_current_user_id();
-	$pdftvtpl2_allfields_defaults_option = get_option('pdftvtpl2_allfields_defaults'.$user_id);
-	
-	
-	$deliveryClass = array(
-	'A4_1st_class'=>0.80,
-	'A4_2nd_class'=>0.60,
-	'A5_1st_class'=>0.60,
-	'A5_2nd_class'=>0.40
-	);
-	
-	
-	$deliveryType = array(
-	
-	'A5 Self-Mailer'=>0.10,
-	'A4 Transparent Wallet'=>0.20,
-	'A5 Transparent Wallet'=>0.20,
-   
-	
-	
-	);
+$user_id = get_current_user_id();
+$pdftvtpl2_allfields_defaults_option = get_option('pdftvtpl2_allfields_defaults'.$user_id);
+
+
+$deliveryClass = array(
+'A4_1st_class'=>0.80,
+'A4_2nd_class'=>0.60,
+'A5_1st_class'=>0.60,
+'A5_2nd_class'=>0.40
+);
+
+
+$deliveryType = array(
+
+'A5 Self-Mailer'=>0.10,
+'A4 Transparent Wallet'=>0.20,
+'A5 Transparent Wallet'=>0.20,
+
+
+
+);
 	
 
-	$advertcost_size_array = array(
-	"quarterpage"=>0.10,
-	"halfpage"=>0.20,
-	"fullpage"=>0.40 );
+$advertcost_size_array = array(
+"quarterpage"=>0.10,
+"halfpage"=>0.20,
+"fullpage"=>0.40 );
 
-	$pdftvtpl2_allfields = array(
-	"first_name"=>"first name",
-	"last_name"=>"last name",
-	"email"=>"email",
-	"company"=>"company name",
-	"company_number"=>"company number",
-	"phone_number"=>"phone number",
-	"mobile_number"=>"mobile number",
-	"fax_number"=>"fax number",
-	"town"=>"town",
-	"city"=>"city",
-	"county"=>"county",
-	"address"=>"address",
-	"address2"=>"address 2",
-	"website"=>"website",
-	"title"=>"title",
-	"office_phone"=>"office phone",
-	"industry"=>"industry",
-	"birthday"=>"birthday",
-	"date"=>"date",
-	"postcode"=>"postcode",
-	"surname"=>"surname",
-	"partner_id"=>"partner_id"
+$pdftvtpl2_allfields = array(
+"first_name"=>"first name",
+"last_name"=>"last name",
+"email"=>"email",
+"company"=>"company name",
+"company_number"=>"company number",
+"phone_number"=>"phone number",
+"mobile_number"=>"mobile number",
+"fax_number"=>"fax number",
+"town"=>"town",
+"city"=>"city",
+"county"=>"county",
+"address"=>"address",
+"address2"=>"address 2",
+"website"=>"website",
+"title"=>"title",
+"office_phone"=>"office phone",
+"industry"=>"industry",
+"birthday"=>"birthday",
+"date"=>"date",
+"postcode"=>"postcode",
+"surname"=>"surname",
+"partner_id"=>"partner_id"
 
-	);
+);
 
 
 if(empty($pdftvtpl2_allfields_defaults_option)){

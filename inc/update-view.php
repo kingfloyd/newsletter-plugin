@@ -760,7 +760,7 @@ box-sizing: border-box !important;
 						</tr>
 					</thead>
 					
-					<tr ng-repeat="x in csvData" id="toRemove{{ x.line }}">
+					<tr class="toRemove" ng-repeat="x in csvData" id="toRemove{{ x.line }}">
 						<td style="text-align:center;" class="datacheckboxes" ><input type="checkbox" name="tableline{{ x.line }}" value="{{ x.line }}" /></td>
 						<td style="text-align:center;">
 							{{ x.line }}

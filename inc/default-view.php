@@ -1,10 +1,7 @@
 
 <?php
 
-	if(isset($_POST['goto_step2'])){
-
-
-
+if(isset($_POST['goto_step2'])){
 
 
 		$user_id = get_current_user_id();
@@ -83,53 +80,32 @@
 
 		}
 
-
 		if($_POST[PREMETA.'newsletter_select_template']!=""){
 
 			$pdfpages_contents = get_post_meta($_POST[PREMETA.'newsletter_select_template'], 'pdfpages_contents', true);
 			$pdfconverted_contents = get_post_meta($_POST[PREMETA.'newsletter_select_template'], 'pdfconverted_contents', true);
-
 			if($pdfpages_contents!=""){
-
 				update_post_meta($pid, 'pdfpages_contents', $pdfpages_contents);
-
 			}else{
-
 				update_post_meta($pid, 'pdfpages_contents', $array_initial_val);
 
 			}
-
 			if($pdfconverted_contents!=""){
-
 				update_post_meta($pid, 'pdfconverted_contents', $pdfconverted_contents);
 
 			}else{
-
 				update_post_meta($pid, 'pdfconverted_contents', $array_initial_val2);
-
 			}
-
-
 		}else{
-
 			update_post_meta($pid, 'pdfpages_contents', $array_initial_val);
 			update_post_meta($pid, 'pdfconverted_contents', $array_initial_val2);
-
 		}
-
 
 		update_post_meta($pid, 'step1', "true");
 		update_post_meta($pid, 'step2', "true");
 
 		$appendurl = "?newsletter_id=".$pid;
 
-/* 		if($_POST[PREMETA.'newsletter_template']!=""){
-
-			$appendurl .= "&template=".$_POST[PREMETA.'newsletter_select_template'];
-
-		} */
-		//echo get_the_permalink()."".$appendurl;
-		//wp_redirect(get_the_permalink()."/".$appendurl);
 
 		echo "<script type='text/javascript'>  window.location='".site_url()."/create-newsletter/".$appendurl."';  </script>";
 
