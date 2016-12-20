@@ -498,8 +498,7 @@ function get_pdf_filtered_contents($val){
 			 
 		}
 		
-		//$pregmatch = preg_match("/{(.*)}/",$val, $matches);
-		//$newval = $matches[0];
+		
 		foreach($pdftvtpl2_allfields_defaults as $key=>$value){
 			
 			$key = "{".$key."}";
@@ -516,10 +515,35 @@ function get_pdf_filtered_contents($val){
 					
 				}
 			
+			}else{
+				
+			
+			
 			}
 			
 		}		
+
+		 preg_match_all("/{(.*?)}/",$val, $matches);
+		 
+		foreach($matches[0] as $val2){
+			
+			if (strpos($val , $val2 ) !== false) {
+				
+				if($_REQUEST['pdfpreview']==1){
+				
+					$val = str_replace($val2, "<span style='background:red;'>".$val2."</span>",$val );
+				
+				}else{
+					
+				//$val = str_replace($key, $value,$val );	
+					
+				}
+			
+			}
+			
+		}
 		
+
 		return $val;
 
 

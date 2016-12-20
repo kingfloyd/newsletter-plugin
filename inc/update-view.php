@@ -750,7 +750,7 @@ box-sizing: border-box !important;
 							
 						</tr>	
 						<tr>	
-							<th></th>
+							<th><button class="alert alert-danger" id="checkallcheckboxBelow">Check all</button></th>
 							<th>Line</th>
 							<th>Full Name</th>
 							<th>Business</th>

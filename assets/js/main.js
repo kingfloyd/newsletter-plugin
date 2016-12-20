@@ -1108,6 +1108,16 @@ pdfcr(function(){
 	})
 
 
+	pdfcr('#checkallcheckboxBelow').click(function(){
+		
+			pdfcr('#table_id .datacheckboxes input[type=checkbox]').each(function(){
+				
+				pdfcr(this).prop("checked", !pdfcr(this).prop("checked"));
+				
+			})
+		
+	})
+	
 
 	//on modal close default
 	pdfcr('#pdfAddReadymade').on('hidden.bs.modal', function () {
@@ -1312,16 +1322,7 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 	$scope._hideObj = true;
 	$scope.csvwrap = true;
 	
-	$scope.myfunction = function(){
-
-
-
-	}
 	
-	
-	
-	setTimeout(function(){
-		//alert("fdsfsd")
 	if(pdfcr('#step2wrap').is(":visible")){
 
 		$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_pdftpl_a4a5'}}).then(function(response) {
@@ -1333,15 +1334,9 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 
 		});
 
-
-		//alert(localStorage.getItem(main_script_object.step));
-
 	}
-	},500);	
 	
-
-
-
+	
 	//on button click
 	$scope.loadreadymadecontent = function(){
 	
@@ -1481,22 +1476,7 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 		
 		
 	}
-	//get Csv list on submitting form 4
-/* 	$scope.step4msubmit = function(){
-			setTimeout(function(){
-		$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'view_csv_listbtn'}}).then(function(response) {
-			if(response.data.records!=""){
-			$scope.csvData = response.data.records;
-			$scope.csvwrap = false;
-			setTimeout(function(){
-			pdfcr('#table_id').DataTable();
-			},1000);
-			}
-		});			
-			},500);
-			
-	}
-	 */
+
 	var file_frame;
 	
     $scope.uploadFile = function(){
