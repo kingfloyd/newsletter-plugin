@@ -516,19 +516,20 @@ box-sizing: border-box;
 				<?php for($i=0;$i<=$pagesnum;$i++){ ?>
 				<div id="pdf<?php echo $i; ?>" class="pdf-page callgotopage<?php echo $i; ?>">
 					<div>
-						<button class='btn btn-danger addnew' type="button">Add single grid</button>
+						<button class='btn btn-danger addnew' type="button">Add single grid1s</button>
 						<button data-pdfselected="pdf<?php echo $i; ?>" type='button' class='btn btn-danger pdfaddrow' data-toggle="modal" data-target="#pdfAddGrid">Add Columns</button>
 						<button data-pdfselected="pdf<?php echo $i; ?>" type='button' class='btn btn-danger pdfaddrow' data-toggle="modal" data-target="#pdfAddReadymade">Add Readymade Content</button>
 						<?php if($i==0){ ?>
-						<b> Front Page</b>
+						<b> Front Page1</b>
 						<?php }elseif($i==$pagesnum){ ?>
-						<b> Back Page</b>
+						<b> Back Page11</b>
 						<?php }else{ ?>
 						<b> Page <?php echo $i; ?></b>
 						<?php } ?>
 					</div>
 					<br>
 					<div id="pdfpagewrap<?php echo $i; ?>" class="pdfwrapper gridster">
+
 						<ul>
 							<li data-sizey="2" data-sizex="12" data-col="3" data-row="1">
 									<div class="settings-wrap">
