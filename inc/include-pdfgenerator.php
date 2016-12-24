@@ -22,11 +22,6 @@ function generate_pdf(){
 
 
 
-	if(!empty($extraCSS) and !empty($posts)) {
-		helper_html_to_pdf_preview($posts['post_content'], $extraCSS);
-		exit;
-	}
-
 	$pdfpage_contents = get_post_meta($_GET['newsletter_id'],'pdfconverted_contents',true);
 
 
@@ -36,22 +31,27 @@ function generate_pdf(){
 		$pdfpage_contents = get_post_meta($_GET['newsletter_id'],'pdfconverted_contents',true);
 		if($pdfpage_contents!=""){
 			
-			if($_GET['pdfgenerate']==1){
+			if($_GET['status']=="live"){
 				
-				$pdfgenerate = get_post_meta($_GET['newsletter_id'],'pdfgenerate',true);
+				$status = get_post_meta($_GET['newsletter_id'],'status',true);
 				
 			}	
 			
-			if((isset($_GET['pdfpreview']) and $_GET['pdfpreview']==1) or $pdfgenerate==1) {
-				if($_GET['pdfgenerate']!=1){
+			//if((isset($_GET['status']) and $_GET['status']=="testing") or $status=="live") {
+			if((isset($_GET['status']) and $_GET['status']=="testing") or $status=="live") {
+				if($_GET['status']!="live"){
 				$extraCSS['wattermark'] = "Preview";
-				}else{
-									
-					
 				}
 				
-				helper_html_to_pdf_preview_floyd($pdfpage_contents, $extraCSS);
-				exit;
+				if($_GET['status']=="live" && check_partner_account($_REQUEST['partner_id'],$_REQUEST['letter_password'])=="true"){
+					helper_html_to_pdf_preview_floyd($pdfpage_contents, $extraCSS,$_REQUEST['partner_id'],$_REQUEST['newsletter_id'],1);
+					exit;
+				}else{
+					
+					helper_html_to_pdf_preview_floyd($pdfpage_contents, $extraCSS);
+					exit;
+				}	
+					
 			}
 		}
 	}

@@ -51,7 +51,8 @@ $pdftvtpl2_allfields = array(
 "date"=>"date",
 "postcode"=>"postcode",
 "surname"=>"surname",
-"partner_id"=>"partner_id"
+"partner_id"=>"partner_id",
+"letter_password"=>"letter_password"
 
 );
 
@@ -80,7 +81,8 @@ if(empty($pdftvtpl2_allfields_defaults_option)){
 	"date"=>"your date",
 	"postcode"=>"your postcode",
 	"surname"=>"your surname",
-	"partner_id"=>"your partner_id"	
+	"partner_id"=>"your partner_id",
+	"letter_password"=>"password"
 	);
 	
 
@@ -114,12 +116,13 @@ if(empty($pdftvtpl2_allfields_defaults_option)){
 	"date",
 	"postcode",
 	"surname",
-	"partner_id"
+	"partner_id",
+	"letter_password"
 	);
 
 	$pdftvtpl2_allfields_default = array(
-	"full_name"=>"YOURDATA",
-	"email"=>"YOURDATA",
+	"first_name"=>"YOURDATA",
+	"last_name"=>"YOURDATA",
 	"company"=>"YOURDATA",
 	"company_number"=>"YOURDATA",
 	"phone_number"=>"YOURDATA",
@@ -138,7 +141,8 @@ if(empty($pdftvtpl2_allfields_defaults_option)){
 	"date"=>"YOURDATA",
 	"postcode"=>"YOURDATA",
 	"surname"=>"YOURDATA",
-	"partner_id"=>"YOURDATA"	
+	"partner_id"=>"YOURDATA",
+	"letter_password"=>"YOURDATA"	
 	);
 
 //load plugin style
@@ -544,6 +548,20 @@ function generate_pdftvtpl2_url(){
 
 }
 
+
+function generate_pdftvtpl2_httpvariable(){
+	global $pdftvtpl2_allfields_default;
+
+	global $post;
+
+	$data = "?newsletter_id=".$_REQUEST['newsletter_id']."&".http_build_query($pdftvtpl2_allfields_default);
+
+	return $data;
+
+
+}
+
+
 function get_csv_listing_head(){
 
 
@@ -779,6 +797,8 @@ function submittoque(){
 
 
 	$pid = $_POST['pid'];
+	$partnerid = $_POST['partner_id'];
+	$letter_password = $_POST['letter_password'];
 
 	$user_id = get_current_user_id();
 	global $current_user;
@@ -803,7 +823,7 @@ function submittoque(){
 	$service = 'autonewsletter';
 
 	$data = array (
-	 "partner_id" => $user_id,
+	 "partner_id" => $partnerid,
 	 "password" => '',
 	 "deliver_to" => $current_user->user_firstname." ".$current_user->user_lastname,
 	 "cost" => $totalprice,
@@ -829,20 +849,38 @@ function submittoque(){
 
 	$output = json_decode($output, true);
 
-
+	
 	if($output['success']==1){
-	update_post_meta($pid, 'pdfgenerate', 1);
+	update_post_meta($pid, 'status', 'live');
 	}
 
 	//echo($output) . PHP_EOL;
 	//echo '</pre>';
+	
 
 	// close curl resource to free up system resources
 	curl_close($ch);
 
+
 	echo $submit_return = "<div class='alert-success alert returnDataprocess'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>×</a>Data submitted to que!<div id='hiddentotal' style='display:none;'>".$totalprice."</div></div>";
-
-
+	
+	require_once(pdftvtpl2_plugin_path.'/MPDF57/mpdf.php');
+	require_once pdftvtpl2_plugin_path.'/helper/helper.php';
+	
+	
+	
+	if($partnerid!="" && $pid!="" && $output['success']==1){
+		$pdfpage_contents = get_post_meta($pid ,'pdfconverted_contents',true);	
+		$pdffile = helper_html_to_pdf_generate_file($pdfpage_contents, $extraCSS,$partnerid,$pid,1);
+		
+	}	
+		
+	
+	if($pdffile!=""){
+		
+		update_post_meta("pdffile".$pid."_partner".$partnerid, 'status', 'live');
+		
+	}
 	exit;
 
 }
@@ -1165,7 +1203,7 @@ if(is_array($customer_list)){
 		$business = $customervalues['company'];
 		$type = "Newsletter";
 		$missingdata = join('\n', array_diff_key($pdftvtpl2_allfields, $customervalues));
-		$pdflink = site_url()."/create-newsletter?newsletter_id=".$pid."&".urldecode(http_build_query($customervalues))."&pdfpreview=1";
+		$pdflink = site_url()."/create-newsletter?newsletter_id=".$pid."&".urldecode(http_build_query($customervalues))."&status=testing";
 		
 		if($countlist==$i){
 		
@@ -1225,6 +1263,7 @@ foreach ($lines as $key => $value)
 
 
 update_post_meta(intval($pid),'customer_list',$csv); 
+update_post_meta(intval($pid),'pdftvtpl2_customerlist',"csv"); 
 
 $countlist=count($csv);
 
@@ -1236,7 +1275,7 @@ if(is_array($csv)){
 		$business = $customervalues['company'];
 		$type = "Newsletter";
 		$missingdata = join('\n', array_diff_key($pdftvtpl2_allfields, $customervalues));
-		$pdflink = site_url()."/create-newsletter?newsletter_id=".$pid."&".urldecode(http_build_query($customervalues))."&pdfpreview=1";
+		$pdflink = site_url()."/create-newsletter?newsletter_id=".$pid."&".urldecode(http_build_query($customervalues))."&status=testing";
 		
 		if($countlist==$i){
 		
@@ -1251,6 +1290,8 @@ if(is_array($csv)){
 		$i++;
 		
 	}
+	
+	
 	
 }
 
@@ -1276,7 +1317,7 @@ $pid = $_REQUEST['pid'];
 */	
 	if($_REQUEST['table_action']=="deleteall"){
 		
-		update_post_meta(intval($pid),'customer_list',$csv); 
+		update_post_meta(intval($pid),'customer_list',""); 
 		
 	}else{
 		
@@ -1293,7 +1334,7 @@ $pid = $_REQUEST['pid'];
 				$business = $customervalues['company'];
 				$type = "Newsletter";
 				$missingdata = join('\n', array_diff_key($pdftvtpl2_allfields, $customervalues));
-				$pdflink = site_url()."/create-newsletter?newsletter_id=".$pid."&".urldecode(http_build_query($customervalues))."&pdfpreview=1";
+				$pdflink = site_url()."/create-newsletter?newsletter_id=".$pid."&".urldecode(http_build_query($customervalues))."&status=testing";
 				
 				if($countlist==$i){
 				
@@ -1322,4 +1363,156 @@ $pid = $_REQUEST['pid'];
 	die();
 	
 	
+}
+
+
+
+function process_ping($request){
+	
+	echo $request['partner_id'];
+	
+}
+
+
+function pdftplgetPing(){
+	
+	global $pdftvtpl2_allfields;
+	$pid = $_REQUEST['pid'];	
+	
+	$allping = get_post_meta($pid,PREMETA.'ping',true);
+
+	$countlist = count($allping);
+	$i = 1;
+	
+if(is_array($allping)){
+	foreach($allping as $index=>$customervalues){
+
+		$fullname = $customervalues['first_name']." ".$customervalues['last_name'];
+		$business = $customervalues['company'];
+		$TIMEDATE = $customervalues['TIMEDATE'];
+		$type = "Newsletter";
+		$missingdata = join('\n', array_diff_key($pdftvtpl2_allfields, $customervalues));
+		$pdflink = site_url()."/create-newsletter?newsletter_id=".$pid."&".urldecode(http_build_query($customervalues))."&status=testing";
+		
+		if($countlist==$i){
+		
+		$appendtoObject .= '{"line":"'.$index.'","TIMEDATE":"'.$TIMEDATE .'","fullname":"'.$fullname .'","company":"'.$business.'","type":"'.$type .'","missingdata":"'.$missingdata .'","pdflink":"'.$pdflink .'"}';
+		
+		}else{
+	
+		$appendtoObject .= '{"line":"'.$index.'","TIMEDATE":"'.$TIMEDATE .'","fullname":"'.$fullname .'","company":"'.$business.'","type":"'.$type .'","missingdata":"'.$missingdata .'","pdflink":"'.$pdflink .'"},';	
+			
+		}
+			
+		$i++;
+		
+	}
+	
+}	
+	
+	print_r('{"records":['.$appendtoObject.']}');	
+	
+	die();
+	
+	
+}
+
+
+function deletePing(){
+	
+	global $pdftvtpl2_allfields;
+	$pid = $_REQUEST['pid'];	
+	
+	$allping = get_post_meta($pid,PREMETA.'ping',true);
+	
+	if($_REQUEST['table_action']=="deleteall"){
+		
+		update_post_meta(intval($pid),PREMETA.'ping',""); 
+		
+	}else{
+		
+		$removeKeys = explode(",", $_REQUEST['selected']);
+		
+		foreach($removeKeys as $ind){
+			
+			
+			unset($allping[$ind]);
+			
+		}
+		
+		update_post_meta(intval($pid),PREMETA.'ping',$allping); 
+		 
+	
+	
+	}	
+	
+	//print_r($allping);
+	
+	die();
+	
+	
+}
+
+function check_partner_account($partner_id,$letter_password){
+	
+	
+	/**
+ *  Example API POST call
+ *  validate partner password for sms, voice, fax and newsletter
+ */
+
+$data = array (
+ "partner_id" => $partner_id,
+ "password" => $letter_password,
+ "service" => 'newsletter'
+);
+
+// api post url
+$url = 'http://connect.umbrellasupport.co.uk/validate/';
+
+// set up the curl resource
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+// execute the request
+$output = curl_exec($ch);
+
+// output the profile information - includes the header
+/* echo '<pre>';
+echo $output;
+echo '</pre>'; */
+
+// close curl resource to free up system resources
+curl_close($ch);
+	
+	
+	return $output;
+	
+}
+
+
+function log_error_funct($newsletterid,$error,$request){
+	
+	
+			$errarr = array(
+				
+				"TIMEDATE"=>date("H:i A d/m/Y"),
+				"Reference"=> "ER".$newsletterid,
+				"Service"=> "Newsletter",
+				"Method"=> "HTTP Post",
+				"ERROR"=> join(",<br />",$error),
+				"View Data"=>$request
+		
+			);	
+			
+			$NewsletterErr = get_post_meta($newsletterid,'pingError',true);			
+			$NewsletterErr[] = $errarr;			
+			update_post_meta($newsletterid,'pingError',$NewsletterErr);				
+/* 	echo "<pre>";
+		print_r($NewsletterErr);
+	echo "</pre>"; */
 }

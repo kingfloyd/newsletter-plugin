@@ -1,13 +1,29 @@
 <?php
 
-global $post;
+global $post, $ping, $pdftvtpl2_allfields, $errFound;
+
 $pid = $_REQUEST['newsletter_id'];
 $createpageid =  $post->ID;
+
+$customerlist = get_post_meta($_REQUEST['newsletter_id'],PREMETA.'customerlist',true);
+
 if($_REQUEST['pdftvtpl2_newsletter_select_template']!=""){
 
 $pid = $_REQUEST['pdftvtpl2_newsletter_select_template'];
 
 }
+
+
+//print_r($_GET);
+
+$url = $_SERVER["REQUEST_URI"];
+
+/* $woo = explode("?", $_SERVER["REQUEST_URI"], 2);
+parse_str($woo[1], $wawa);
+
+echo "<pre>";
+print_r($wawa);
+echo "</pre>"; */
 
 
 if ( FALSE === get_post_status( $pid  ) ) {
@@ -55,6 +71,7 @@ $pagesnum = count($pdfpage_contents);
 <link href="<?php echo pdftvtpl2_plugin_url; ?>/assets/css/bootstrap-colorpicker.min.css" rel="stylesheet">
 <script src="<?php echo pdftvtpl2_plugin_url; ?>/assets/js/bootstrap-colorpicker.js"></script>
 <script src="<?php echo pdftvtpl2_plugin_url; ?>/assets/js/angularjs-v1.4.8.js"></script>
+<script src="<?php echo pdftvtpl2_plugin_url; ?>/assets/js/waitingforyou.js"></script>
 
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.js"></script>
@@ -262,10 +279,10 @@ box-sizing: border-box !important;
 
 
 				}
-			}, shift_widgets_up: false,
-            shift_larger_widgets_down: false,
+			}, shift_widgets_up: true,
+            shift_larger_widgets_down: true,
             collision: {
-                wait_for_mouseup: true
+                wait_for_mouseup: false
             }
 
 		}).data('gridster');
@@ -486,7 +503,7 @@ box-sizing: border-box !important;
 						<button data-pdfselected="pdf<?php echo $i; ?>" type='button' class='btn btn-danger pdfaddrow' data-toggle="modal" data-target="#pdfAddAdvertisement">Add Adverisement</button>
 						<!--<button data-pdfselected="pdf<?php echo $i; ?>" type='button' class='btn btn-danger pdfaddrow' data-toggle="modal" data-target="#pdfAddGrid">Multiple Text Box</button>-->
 						<button data-pdfselected="pdf<?php echo $i; ?>" type='button' class='btn btn-danger pdfaddrow' data-toggle="modal" data-target="#pdfAddReadymade">Add Readymade Content</button>
-						<!----><a target="_blank" href="<?php echo site_url(); ?>/create-newsletter/?newsletter_id=<?php echo $_REQUEST['newsletter_id']; ?>&pdfpreview=1" class="btn-danger btn">Preview</a>
+						<!----><a target="_blank" href="<?php echo site_url(); ?>/create-newsletter/?newsletter_id=<?php echo $_REQUEST['newsletter_id']; ?>&status=testing" class="btn-danger btn">Preview</a>
 					</div>
 					<br>
 					<div id="pdfpagewrap<?php echo $i; ?>" class="pdfwrapper gridster">
@@ -536,7 +553,7 @@ box-sizing: border-box !important;
 <div class="pdfformwrap hiddenwrap"  id="step3wrap" data-ng-init="init()">
 	<form action="" method="POST" id="step3form" widget-next="step4wrap" form-next="step4form" form-target="step3form">
 		<div class="col-md-12" style="text-align:right;">
-			<a target="_blank" href="<?php echo site_url(); ?>/create-newsletter/?newsletter_id=<?php echo $_REQUEST['newsletter_id']; ?>&pdfpreview=1" class="btn-danger btn">Preview</a>
+			<a target="_blank" href="<?php echo site_url(); ?>/create-newsletter/?newsletter_id=<?php echo $_REQUEST['newsletter_id']; ?>&status=testing" class="btn-danger btn">Preview</a>
 		</div>
 		<div class="clear">
 		</div><br /><br />
@@ -610,7 +627,7 @@ box-sizing: border-box !important;
 			<div class="clearfix"></div>
 		</div><br /><br />
 		
-		<div class="form-group" ng-hide="_hideObj">
+		<div class="form-group" ng-hide="_hideObj1">
 			<div class="col-sm-12">
 				<div ng-repeat="x in NumberOFPages" >
 					<strong>+£{{ x.cost   }} {{ x.num   }} Page Newsletter </strong> 
@@ -619,7 +636,7 @@ box-sizing: border-box !important;
 			</div>
 		</div>		
 		
-		<div class="form-group" ng-hide="_hideObj">
+		<div class="form-group" ng-hide="_hideObj2">
 			<div class="col-sm-12">
 				<div ng-repeat="x in readyMadeEntry" ng-if="x.count != 0">
 					<strong>+£{{ x.cost   }} <span ng-if="x.count >= 3">Unlimited Readymade Content</span> <span ng-if="x.count < 3">Readymade Content</span> </strong> 
@@ -628,7 +645,7 @@ box-sizing: border-box !important;
 			</div>
 		</div>
 
-		<div class="form-group" ng-hide="_hideObj">
+		<div class="form-group" ng-hide="_hideObj3">
 			<div class="col-sm-12">
 				<div ng-repeat="x in advertisementEntry" ng-if="x.count != 0">
 					<strong>+£{{ x.cost   }} {{x.name}} Advertisement:</strong> 
@@ -649,18 +666,6 @@ box-sizing: border-box !important;
 			</div>
 		</div>
 		<div class="clearfix"></div>
-
-
-
-		<div class="form-group">
-			<div class="col-sm-12">
-				<label>I have read, understand and agree to the Terms: <input type="checkbox" required name="<?php echo PREMETA; ?>terms" <?php checked_radio(get_pdfnewsletter_meta($pid,PREMETA.'terms'),"1"); ?> value="1"></label>
-				 &nbsp;&nbsp;
-
-			</div>
-		</div>
-		<div class="clearfix"></div>
-
 
 		<hr style="border: 1px solid; color: #a2a2a2;" />
 
@@ -694,36 +699,293 @@ box-sizing: border-box !important;
 	<form action="" method="POST" id="step4form"  form-target="step4form" ng-submit="step4msubmit()">
 
 		<div class="col-md-12" style="text-align:right;">
-			<a target="_blank" href="<?php echo site_url(); ?>/create-newsletter/?newsletter_id=<?php echo $_REQUEST['newsletter_id']; ?>&pdfpreview=1" class="btn-danger btn">Preview</a>
+			<a target="_blank" href="<?php echo site_url(); ?>/create-newsletter/?newsletter_id=<?php echo $_REQUEST['newsletter_id']; ?>&status=testing" class="btn-danger btn">Preview</a>
 		</div>
 		<div class="clear">
 		</div><br /><br />
 		<div class="form-group">
-			<div class="col-sm-6">
+			<div class="col-sm-12">
 				<label>Customer List:</label><br /><br />
-				<input type="radio" class="customerlist" required name="<?php echo PREMETA; ?>customerlist" <?php checked_radio(get_pdfnewsletter_meta($pid,PREMETA.'customerlist'),"csv"); ?> value="csv">Excel Spreadsheet &nbsp;&nbsp;
-				<input type="radio" class="customerlist" required name="<?php echo PREMETA; ?>customerlist" <?php checked_radio(get_pdfnewsletter_meta($pid,PREMETA.'customerlist'),"http"); ?> value="http">HTTP Post<br /><br />
-				<div class="customerlistsubinput">
-				<?php if(get_post_meta($_REQUEST['newsletter_id'],PREMETA.'customerlist',true)=="csv"){ ?>
-					<!--<input type='file' name='filecsv' id='txtFileUpload' accept='.csv'  />-->
-				<?php
-					}elseif(get_post_meta($_REQUEST['newsletter_id'],PREMETA.'customerlist',true)=="http"){
-				?>
-					<input name="httpfile" class="form-control" id="httpfield" type="text" value="<?php echo generate_pdftvtpl2_url(); ?>">
-					<br />
-				<?php
+				<input type="radio" class="customerlist" required name="<?php echo PREMETA; ?>customerlist" <?php checked_radio(get_pdfnewsletter_meta($pid,PREMETA.'customerlist'),"csv"); ?> value="csv" autocomplete="off">Excel Spreadsheet &nbsp;&nbsp;
+				<input type="radio" class="customerlist" required name="<?php echo PREMETA; ?>customerlist" <?php checked_radio(get_pdfnewsletter_meta($pid,PREMETA.'customerlist'),"http"); ?> value="http" autocomplete="off">HTTP Post<br /><br />
+				
 
-					}
+				<div class="customerlistsubinput" <?php if($customerlist!="http"){ ?> style="display:none;" <?php } ?>>
+					
+				
+		
+					
+				<?php  if($ping==true): ?>	
+				
+				<a href="javascript:void(0);" id="getpingtpl" class="btn btn-danger" ng-click="get_ping();">HTTP Post Just Sent >></a>
+				<?php if(count($errFound)>0){ ?>
+				&nbsp;&nbsp;<a target="_blank" style="text-decoration:none;" href="<?php echo site_url('pdftvpl2error')."?newsletter_id=".$_REQUEST['newsletter_id']; ?>" data-toggle="tooltip" title="<?php echo join(",",$errFound); ?>"><span class="badge" style="background:red;"><?php echo count($errFound); ?></span> Error Found.</a>
+				<?php } ?>
+				<br /><br />
+					<div class="form-group" ng-hide="pingwrapAddedPing">
+						<div class="col-sm-12">					
+							<table id="pdftpl_ping_table" class="display">
+								<thead>	
+									<tr>	
+										<th><button type="button" class="alert alert-danger" id="checkallcheckboxPing">Check all</button></th>
+										<th>Time & Date</th>
+										<th>Full Name</th>
+										<th>Business</th>
+										<th>Type</th>
+										<th>Missing Data</th>
+										<th>PDF Link</th>
+									</tr>
+								</thead>
+					
+								<tr class="toRemovePing" ng-repeat="x in pingData" id="toRemovePing{{ x.line }}">
+								   
+									<td style="text-align:center;" class="datacheckboxes" ><input type="checkbox" name="tableline{{ x.line }}" value="{{ x.line }}" /></td>
+									<td style="text-align:center;">
+										{{x.TIMEDATE}}
+									</td>	
+									<td style="text-align:center;">
+										{{x.fullname}}
+									</td>
+									<td style="text-align:center;">
+										{{x.company}}
+									</td>
+									<td style="text-align:center;">
+										Newsletter
+									</td>		
+									<td style="color:red;">
+										{{x.missingdata}}
+									</td style="text-align:center;">	
+									<td style="text-align:center;">			
+										<a target="_blank" href="{{ x.pdflink }}">Click Here</a>
+									</td>
+								</tr>
+						
+							</table>
+							<div class="col-md-12">
+								<button type="button" ng-click="deletePing('delete');" class="alert alert-danger" name="delete">Delete</button>
+								<button type="button" ng-click="deletePing('deleteall');" class="alert alert-danger" name="deleteall">Delete All</button>
+							</div>							
+						
+						</div>
+					</div>				
+				
+				
+				
+					
+				<?php else: ?>	
+				
+					<?php if(get_post_meta($_REQUEST['newsletter_id'],PREMETA.'ping',true)!="" && $customerlist=="http"){
+						
+							$listallping = get_post_meta($_REQUEST['newsletter_id'],PREMETA.'ping',true);
+						//here is the table list
+						
+						if(!empty($listallping )){
+					?>	
+					
+					<div class="form-group" ng-hide="pingwrap">
+						<div class="col-sm-12">					
+							<table id="pdftpl_ping_table" class="display">
+								<thead>	
+									<tr>	
+										<th><button type="button" class="alert alert-danger" id="checkallcheckboxPing">Check all</button></th>
+										<th>Time & Date</th>
+										<th>Full Name</th>
+										<th>Business</th>
+										<th>Type</th>
+										<th>Missing Data</th>
+										<th>PDF Link</th>
+									</tr>
+								</thead>
+								<?php foreach($listallping as $kping=>$vping): ?>
+								<tr class="toRemovePing" id="toRemovePing<?php echo $kping; ?>">
+								   
+									<td style="text-align:center;" class="datacheckboxes" ><input type="checkbox" name="tableline<?php echo $kping; ?>" value="<?php echo $kping; ?>" /></td>
+									<td style="text-align:center;">
+										<?php echo $vping['TIMEDATE']; ?>
+									</td>	
+									<td style="text-align:center;">
+										<?php echo $vping['first_name']; ?> <?php echo $vping['last_name']; ?>
+									</td>
+									<td style="text-align:center;">
+										<?php echo $vping['company']; ?>
+									</td>
+									<td style="text-align:center;">
+										Newsletter
+									</td>		
+									<td style="color:red;">
+										<?php echo join('<br />', array_diff_key($pdftvtpl2_allfields, $vping)); ?>
+									</td style="text-align:center;">	
+									<td style="text-align:center;">			
+										<a target="_blank" href="<?php echo site_url()."/create-newsletter?newsletter_id=".$pid."&".urldecode(http_build_query($vping))."&status=testing" ?>">Click Here</a>
+									</td>
+								</tr>
+							<?php endforeach; ?>							
+							</table>
+							<div class="col-md-12">
+								<button type="button" ng-click="deletePing('delete');" class="alert alert-danger" name="delete">Delete</button>
+								<button type="button" ng-click="deletePing('deleteall');" class="alert alert-danger" name="deleteall">Delete All</button>
+							</div>							
+							<script>
+								pdfcr(document).ready(function(){
+									
+									pdfcr('#pdftpl_ping_table').DataTable();
+									
+								})
+							</script>
+						</div>
+					</div>
+					<?php	
+						}
+					}else{ ?>
+					
+					<?php if($customerlist=="csv"){ ?>
+					
+					<div class="form-group" ng-hide="pingwrapAddedPing">
+						<div class="col-sm-12">					
+							<table id="pdftpl_ping_table" class="display">
+								<thead>	
+									<tr>	
+										<th><button type="button" class="alert alert-danger" id="checkallcheckboxPing">Check all</button></th>
+										<th>Time & Date</th>
+										<th>Full Name</th>
+										<th>Business</th>
+										<th>Type</th>
+										<th>Missing Data</th>
+										<th>PDF Link</th>
+									</tr>
+								</thead>
 
-				?>
+								<tr class="toRemovePing" ng-repeat="x in pingData" id="toRemovePing{{ x.line }}">
+								   
+									<td style="text-align:center;" class="datacheckboxes" ><input type="checkbox" name="tableline{{ x.line }}" value="{{ x.line }}" /></td>
+									<td style="text-align:center;">
+										{{x.TIMEDATE}}
+									</td>	
+									<td style="text-align:center;">
+										{{x.fullname}}
+									</td>
+									<td style="text-align:center;">
+										{{x.company}}
+									</td>
+									<td style="text-align:center;">
+										Newsletter
+									</td>		
+									<td style="color:red;">
+										{{x.missingdata}}
+									</td style="text-align:center;">	
+									<td style="text-align:center;">			
+										<a target="_blank" href="{{ x.pdflink }}">Click Here</a>
+									</td>
+								</tr>
+						
+							</table>
+							<div class="col-md-12">
+								<button type="button" ng-click="deletePing('delete');" class="alert alert-danger" name="delete">Delete</button>
+								<button type="button" ng-click="deletePing('deleteall');" class="alert alert-danger" name="deleteall">Delete All</button>
+							</div>							
+						
+						</div>
+					</div>								
+					
+					<?php
+						}elseif($customerlist=="http" || $customerlist == ""){
+					?>
+					
+						<table id="httpstructure" class="table" style="width:100%;">
+							<tr>
+								<td>
+									<strong>Url:</strong> <?php echo site_url('create-newsletter'); ?>
+								</td>
 
+							</tr>	
+							<tr>
+								<td>
+									<strong>Post Data:</strong> <?php echo generate_pdftvtpl2_httpvariable(); ?>
+								</td>						
+							</tr>
+						</table>				
+					
+					<?php 	} ?>
+				<?php } ?>	
+					
+				<?php endif; ?>
+				
+				
 				</div>
-				<div id="csvloaderbtnwrap" <?php if(get_post_meta($_REQUEST['newsletter_id'],PREMETA.'customerlist',true)!="csv"){ ?> style="display:none;" <?php } ?>>
-				<input type="button" ng-click="uploadFile(event)" value="Upload Csv"><br />
+				
+				
+				
+				
+				<div id="csvloaderbtnwrap" <?php if($customerlist!="csv"){ ?> style="display:none;" <?php } ?>>
+					<div class="form-group">
+						<input type="button" ng-click="uploadFile(event)" value="Upload Csv"><br />
+					</div>
+					
+					<div class="form-group" id="csvwrap" ng-hide="csvwrap">
+								<div class="col-sm-12">
+									<table id="table_id" class="display" datatable="ng">
+										
+										<thead>
+											<tr>
+												<th align="center" colspan="7" style="text-align:center;"> Newsletters Created: {{csvData.length}} </th>
+												
+											</tr>	
+											<tr>	
+												<th><button type="button" class="alert alert-danger" id="checkallcheckboxBelow">Check all</button></th>
+												<th>Line</th>
+												<th>Full Name</th>
+												<th>Business</th>
+												<th>Type</th>
+												<th>Missing Data</th>
+												<th>PDF Link</th>
+											</tr>
+										</thead>
+										
+										<tr class="toRemove" ng-repeat="x in csvData" id="toRemove{{ x.line }}">
+											<td style="text-align:center;" class="datacheckboxes" ><input type="checkbox" name="tableline{{ x.line }}" value="{{ x.line }}" /></td>
+											<td style="text-align:center;">
+												{{ x.line }}
+											</td>	
+											<td style="text-align:center;">
+												{{ x.fullname }}
+											</td>
+											<td style="text-align:center;">
+												{{ x.business }}
+											</td>
+											<td style="text-align:center;">
+												{{ x.type }}
+											</td>		
+											<td style="color:red;">
+												{{ x.missingdata }}
+											</td style="text-align:center;">	
+											<td style="text-align:center;">			
+												<a target="_blank" href="{{ x.pdflink }}">Click Here</a>
+											</td>
+										</tr>
+
+
+									</table>	
+									<div class="col-md-12">
+										<button type="button" ng-click="deleteTableContent('delete');" class="alert alert-danger" name="deleteall">Delete</button>
+										<button type="button" ng-click="deleteTableContent('deleteall');" class="alert alert-danger" name="deleteall">Delete All</button>
+									</div>					
+								</div>
+								<script>
+								
+								//pdfcr('#table_id').DataTable();
+								</script>
+								<div class="clearfix"></div><br />
+								<div class="clearfix"></div><br />			
+							</div>				
+				
+				
+				
 				</div>				
 			</div>
 		</div>
 		<div class="clearfix"></div><br /><br />
+		
+
 
 		<div class="form-group">
 			<div class="col-sm-6">
@@ -740,77 +1002,7 @@ box-sizing: border-box !important;
 			</div>
 		</div>
 		<div class="clearfix"></div><br />
-		<div class="form-group" ng-hide="csvwrap">
-			<div class="col-sm-12">
-				<table id="table_id" class="display" datatable="ng">
-					
-					<thead>
-						<tr>
-							<th align="center" colspan="7" style="text-align:center;"> Newsletters Created: {{csvData.length}} </th>
-							
-						</tr>	
-						<tr>	
-							<th><button class="alert alert-danger" id="checkallcheckboxBelow">Check all</button></th>
-							<th>Line</th>
-							<th>Full Name</th>
-							<th>Business</th>
-							<th>Type</th>
-							<th>Missing Data</th>
-							<th>PDF Link</th>
-						</tr>
-					</thead>
-					
-					<tr class="toRemove" ng-repeat="x in csvData" id="toRemove{{ x.line }}">
-						<td style="text-align:center;" class="datacheckboxes" ><input type="checkbox" name="tableline{{ x.line }}" value="{{ x.line }}" /></td>
-						<td style="text-align:center;">
-							{{ x.line }}
-						</td>	
-						<td style="text-align:center;">
-							{{ x.fullname }}
-						</td>
-						<td style="text-align:center;">
-							{{ x.business }}
-						</td>
-						<td style="text-align:center;">
-							{{ x.type }}
-						</td>		
-						<td style="color:red;">
-							{{ x.missingdata }}
-						</td style="text-align:center;">	
-						<td style="text-align:center;">			
-							<a target="_blank" href="{{ x.pdflink }}">Click Here</a>
-						</td>
-					</tr>
 
-
-				</table>	
-				<div class="col-md-12">
-					<button type="button" ng-click="deleteTableContent('delete');" class="alert alert-danger" name="deleteall">Delete</button>
-					<button type="button" ng-click="deleteTableContent('deleteall');" class="alert alert-danger" name="deleteall">Delete All</button>
-				</div>					
-			</div>
-			<div class="clearfix"></div><br /><br />
-		</div>
-		<!--
-		<div class="form-group" ng-hide="_hideObj">
-			<div class="col-sm-12">
-				<div class="alert alert-danger" ng-repeat="x in readyMadeEntry">
-					<strong>{{ x.count }}x Readymade Article(s):</strong> £<span class="rdymdeprice">{{ x.cost   }}<span>
-				</div>
-
-			</div>
-		</div>
-
-		<div class="form-group" ng-hide="_hideObj">
-			<div class="col-sm-12">
-
-
-				<div class="alert alert-success" ng-repeat="x in advertisementEntry" ng-if="x.count != 0">
-					<strong>{{ x.count }}x {{x.name}} Advertisement:</strong> £<span class="rdymdeprice">{{ x.cost   }}<span>
-				</div>
-
-			</div>
-		</div>-->
 
 		<div class="clearfix"></div><br />
 		<div class="form-group">
@@ -823,9 +1015,34 @@ box-sizing: border-box !important;
 
 			</div>
 		</div>
-		<div class="clearfix"></div><br />
+		<div class="clearfix"></div>
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label>I  have viewed & am happy with the newsletter look: <input type="checkbox" required name="<?php echo PREMETA; ?>terms_viewed_and_happy" <?php checked_radio(get_pdfnewsletter_meta($pid,PREMETA.'terms_viewed_and_happy'),"1"); ?> value="1"></label>
+				 &nbsp;&nbsp;
+
+			</div>
+		</div>		
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label>I have read, understand and agree to the Terms: <input type="checkbox" required name="<?php echo PREMETA; ?>terms" <?php checked_radio(get_pdfnewsletter_meta($pid,PREMETA.'terms'),"1"); ?> value="1"></label>
+				 &nbsp;&nbsp;
+
+			</div>
+		</div>
+		<div class="clearfix"></div><br />		
 		<input type="hidden" name="action" value="process__pdftemplate_form" />
 		<input type="hidden" name="pid" value="<?php echo $_REQUEST['newsletter_id']; ?>" />
+		
+		<?php if(isset($_REQUEST['partner_id'])){ ?>
+		<input type="hidden" name="partner_id" value="<?php echo $_REQUEST['partner_id']; ?>" />
+		<?php } ?>
+		
+		<?php if(isset($_REQUEST['letter_password'])){ ?>
+		<input type="hidden" name="letter_password" value="<?php echo $_REQUEST['letter_password']; ?>" />
+		<?php } ?>
+		
+		
 		<input type="hidden" name="step4" value="true" />
 		<div class="form-group" style="width:211mm; margin:0 auto;">
 			<div class="col-md-3" style="padding:0; text-align:center;">

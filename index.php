@@ -31,34 +31,46 @@ function pdftvtpl2__plugin_activate() {
 			global $wpdb;
 
 			
-			//create parent post
+			$news_letter_page = get_option(PREMETA.'news_letter_page');
+			$news_letter_error_page = get_option(PREMETA.'news_letter_error_page');
 			
-			// Gather post data.
-			$my_post = array(
-			'post_title'    => "Create Newsletter",
-			'post_type'     => 'page',
-			//'post_name'     => $slug,
-			'post_content'  => '[PDFTVTPL2]',
-			'post_status'   => 'publish',
-			'post_author'   => get_current_user_id(),
-			);
+			wp_delete_post($news_letter_page);
+			wp_delete_post($news_letter_error_page);
 
-			// Insert the post into the database.
-			$parentpost_id = wp_insert_post( $my_post );	
-			
-			update_option( PREMETA.'news_letter_page', $parentpost_id);
-			
-			if($parentpost_id !=""){
+				// Gather post data.
+				$my_post = array(
+				'post_title'    => "Create Newsletter",
+				'post_type'     => 'page',
+				'post_name'     => 'create-newsletter',
+				'post_content'  => '[PDFTVTPL2]',
+				'post_status'   => 'publish',
+				'post_author'   => get_current_user_id(),
+				);
 
-				$parentpost = get_post($parentpost_id); 
-				$slug = $parentpost->post_name;
-				$allpid[] = $slug;
+				// Insert the post into the database.
+				$parentpost_id = wp_insert_post( $my_post );	
+				
+				update_option( PREMETA.'news_letter_page', $parentpost_id);
+				
 
+				// Gather post data.
+				$my_post = array(
+				'post_title'    => "Newsletter Error Page",
+				'post_type'     => 'page',
+				'post_name'     => 'pdftvpl2Error',
+				'post_content'  => '[PDFTVTPL2_ERROR]',
+				'post_status'   => 'publish',
+				'post_author'   => get_current_user_id(),
+				);
 
-			}			
-			
+				// Insert the post into the database.
+				$parentpost_id = wp_insert_post( $my_post );	
+				
+				update_option( PREMETA.'news_letter_error_page', $parentpost_id);
+				
+								
 						
-			$pages_to_create = array('Pdf Template List');
+/* 			$pages_to_create = array('Pdf Template List');
 			foreach($pages_to_create as $page){
 				
 				$slug = "".seoUrlfshen(strtolower($page));
@@ -67,43 +79,20 @@ function pdftvtpl2__plugin_activate() {
 
 				if ($postID == '') {
 
-					// Gather post data.
 					$my_post = array(
 					'post_title'    => 'Pdf Template List',
 					'post_type'     => 'page',
-					//'post_name'     => $slug,
 					'post_parent' => $parentpost_id,
 					'post_content'  => '[PDFTVTPL2_LISTING]',
 					'post_status'   => 'publish',
 					'post_author'   => get_current_user_id(),
 					);
 
-					// Insert the post into the database.
-					
-					
-					/* $post_id = wp_insert_post( $my_post );
-
-					if($post_id!=""){
-
-						$post = get_post($post_id); 
-						$slug = $post->post_name;
-						$allpid[] = $slug;
-
-
-					} */
-
 				}
 
 
-			}
+			} */
 
-
-  /* activation code here */
-  
-  
-
-  
-  
 }
 
 

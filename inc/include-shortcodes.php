@@ -135,77 +135,9 @@ function pdftvtpl2_do_shortcode(){
 
 
 
-function pdftvtpl2_listing_do_shortcode(){
+function pdftvtpl2_listing_error(){
 	
-	
-			$args = array(
-				'post_type'  => "pdftvtpl2",
-				'post_status' => 'publish',
-				'posts_per_page' => -1,
-				'author'=> get_current_user_id(),
-
-			);
-
-			$the_query = new WP_Query( $args );	
-	
-?>
-	<p>This text will be a description for the pdf template listing.</p>
-	<div class="table-responsive">         
-	<table class="table" id="example">
-	<thead>
-	<tr>
-	<th>List of Showing Listing</th>
-	<th>Status</th>
-	<th>Last modified</th>
-	</tr>
-	</thead>
-	<tbody>
-
-	<?php 
-
-			
-			if ( $the_query->have_posts() ) {
-				$i = 0;
-				while ( $the_query->have_posts() ) {
-					$the_query->the_post();
-					?>
-				<tr <?php if($i % 2  == 0){ ?>class="warning"  <?php } ?>>
-						<td> <a style="box-shadow:none;" href="<?php echo site_url()."/create-newsletter/?newsletter_id=".$the_query->post->ID; ?>"> <?php if(get_the_title()!=""){ echo get_the_title(); }else{ echo "(no title)";  } ?> </a> </td>
-						<td><?php echo get_post_meta($post->ID, 'status', true); ?> --- </td>
-						<?php 
-
-							$date = new DateTime();
-
-						?>
-						<td> <?php echo  $date->format('F j, Y h:i:s a'); ?> </td>
-						
-						</td>
-					</tr>
-				<?php
-				
-				$i++;
-				
-				}
-				
-				wp_reset_postdata();
-				} else {
-					echo "<h4>No saved pdf yet.</h4>";
-				}
-
-
-		//}else{ ?> 
-
-	<?php //} ?>
-
-
-	</tbody>
-	</table>
-	</div>
-
-
-<?php
-	
-	
+	require('include-error-view.php');
 	
 }
 

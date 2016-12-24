@@ -8,7 +8,8 @@ add_action('init', 'pdftvtpl2_posts');
 add_action('wp_head','generate_pdf');
 // Shortcode
 add_shortcode(strtoupper('PDFTVTPL2'), 'pdftvtpl2_do_shortcode');
-add_shortcode(strtoupper('PDFTVTPL2_LISTING'), 'pdftvtpl2_listing_do_shortcode');
+//add_shortcode(strtoupper('PDFTVTPL2_LISTING'), 'pdftvtpl2_listing_do_shortcode');
+add_shortcode(strtoupper('PDFTVTPL2_ERROR'), 'pdftvtpl2_listing_error');
 
 // Admin Menu
 //add_action('admin_menu', 'pdftvtpl2_create_menu');
@@ -94,5 +95,12 @@ add_action( 'wp_ajax_nopriv_saveCSVfunction', 'saveCSVfunction' );
 
 add_action( 'wp_ajax_deleteTableContent', 'deleteTableContent' );
 add_action( 'wp_ajax_nopriv_deleteTableContent', 'deleteTableContent' );
+
+add_action( 'wp_ajax_deletePing', 'deletePing' );
+add_action( 'wp_ajax_nopriv_deletePing', 'deletePing' );
+
+add_action( 'wp_ajax_pdftplgetPing', 'pdftplgetPing' );
+add_action( 'wp_ajax_nopriv_pdftplgetPing', 'pdftplgetPing' );
+
 
 ?>

@@ -52,18 +52,22 @@ pdfcr(function(){
 
 		})
 
+		
+		pdfcr('form').submit(function(){
+			waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
+		})
 
 
 		pdfcr(document).on('click','form button',function(){
 
-			pdfcr('.loadingImg').remove();
+			waitingDialog.hide()
 
 
 
 			if(pdfcr(this).text()=="Save Later" || pdfcr(this).text()=="Save" || pdfcr(this).text()=="Submit to Que" ){
 
 
-			pdfcr(this).before('<img class="loadingImg" style="height: 20px; margin: 3px;" src="'+pdftvtpl2_plugin_url+'/assets/img/loading.gif">');
+			//waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
 
 			}
 			 pdfcr('form button').removeAttr("clicked")
@@ -95,7 +99,7 @@ pdfcr(function(){
 					pdfcr('.navistep li').removeClass('active');
 					pdfcr('.navistep .'+nextstep).addClass("active");
 
-					pdfcr('.loadingImg').remove();
+					waitingDialog.hide()
 
 				}
 
@@ -113,7 +117,7 @@ pdfcr(function(){
 				contentType: false,
 				success: function (datas)
 				{
-				pdfcr('.loadingImg').remove();
+				waitingDialog.hide()
 				pdfcr('#'+formtarget).before(datas);
 
 				//if(pdfcr('.navigatebtn[clicked=true]',thispage).html()!="next"){
@@ -167,7 +171,7 @@ pdfcr(function(){
 					pdfcr('.navistep li').removeClass('active');
 					pdfcr('.navistep .'+nextstep).addClass("active");
 
-					pdfcr('.loadingImg').remove();
+					waitingDialog.hide()
 
 				}
 
@@ -259,7 +263,7 @@ pdfcr(function(){
 				success: function (datas)
 				{
 
-				pdfcr('.loadingImg').remove();
+				waitingDialog.hide()
 				pdfcr('#'+formtarget).before(datas);
 
 				if(pdfcr('.navigatebtn[clicked=true]',thispage).html()!="next"){
@@ -281,10 +285,9 @@ pdfcr(function(){
 
 		//on radio change update pricing real time
 		pdfcr(document).on('click','#step3form .step3radio',function(){
-
-
-			pdfcr('#step3form .navigatebtnlater').before('<img class="loadingImg" style="height: 20px; margin: 3px;" src="'+pdftvtpl2_plugin_url+'/assets/img/loading.gif">');
-
+			
+			waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
+			
 			var formdata = new FormData(document.getElementById('step3form'));
 
 			formdata.delete('action');
@@ -302,7 +305,7 @@ pdfcr(function(){
 				{
 
 
-				pdfcr('.loadingImg').remove();
+				waitingDialog.hide()
 				pdfcr('.ttalprice').html(datas);
 			  
 
@@ -321,8 +324,7 @@ pdfcr(function(){
 		pdfcr(document).on('click','#step4form .submittoque',function(){
 
 			pdfcr('.returnDataprocess').remove();
-			pdfcr('.loadingImg').remove();
-			pdfcr('#step4form .navigatebtnlater').before('<img class="loadingImg" style="height: 20px; margin: 3px;" src="'+pdftvtpl2_plugin_url+'/assets/img/loading.gif">');
+
 
 			var formdata = new FormData(document.getElementById('step4form'));
 
@@ -342,7 +344,7 @@ pdfcr(function(){
 
 				//alert("dsadasdas")
 
-				pdfcr('.loadingImg').remove();
+				waitingDialog.hide()
 				//alert(datas)
 				pdfcr('#step4form').before(datas);
 				
@@ -677,13 +679,14 @@ pdfcr(function(){
 		if(pdfcr(this).val()=="csv"){
 
 			//var filefields = '<input type="button" ng-click="uploadFile(event)" value="Upload Csv"><br />';
-			pdfcr('#csvloaderbtnwrap').show();
+			pdfcr('#csvloaderbtnwrap').show(loadtabledata());
 			pdfcr('.customerlistsubinput').hide();
 			
 		}else{
 			pdfcr('#csvloaderbtnwrap').hide();
-			var httpfields = "<input type='text' class='form-control' name='httpfile' id='httpfield' value='"+main_script_object.generatehttpurl+"' />";
-			pdfcr('.customerlistsubinput').html(httpfields).show();
+			//var httpfields = "<input type='text' class='form-control' name='httpfile' id='httpfield' value='"+main_script_object.generatehttpurl+"' />";
+			//pdfcr('.customerlistsubinput').html(httpfields).show();
+			pdfcr('.customerlistsubinput').show();
 
 		}
 
@@ -1119,6 +1122,19 @@ pdfcr(function(){
 	})
 	
 
+	pdfcr('#checkallcheckboxPing').click(function(){
+		
+			pdfcr('#pdftpl_ping_table .datacheckboxes input[type=checkbox]').each(function(){
+				
+				pdfcr(this).prop("checked", !pdfcr(this).prop("checked"));
+				
+			})
+		
+	})
+		
+	
+	
+
 	//on modal close default
 	pdfcr('#pdfAddReadymade').on('hidden.bs.modal', function () {
 	   pdfcr('.addreadyselector').val("");
@@ -1286,6 +1302,16 @@ pdfcr(function(){
 		  return html;
 	}
 	
+
+	
+	function loadtabledata(){
+			//alert("adasasd");
+		setTimeout(function(){
+		pdfcr('#table_id').DataTable();
+		},1000);			
+		
+	}
+
 	//
 
 }); //jeuqery document dom end
@@ -1300,7 +1326,7 @@ pdfcr.ajax({
 	data: {pid:main_script_object.newsletter_id,action:'view_csv_list'},
 	success: function (datas)
 	{
-	//pdfcr('.loadingImg').remove();
+	//waitingDialog.hide()
 
 	pdfcr('#csvlistpreview').html(datas);
 	pdfcr('#table_id').DataTable();
@@ -1319,15 +1345,17 @@ var app = angular.module('pdftpl2App', []);
 app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
     $scope.count = 0;
 	$scope.count2 = 0;
-	$scope._hideObj = true;
+	$scope._hideObj1 = true;
+	$scope._hideObj2 = true;
+	$scope._hideObj3 = true;
 	$scope.csvwrap = true;
+	$scope.pingwrapAddedPing = true;
 	
 	
 	if(pdfcr('#step2wrap').is(":visible")){
 
 		$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_pdftpl_a4a5'}}).then(function(response) {
-			//$scope.readyMadeEntry = response.data;
-			//$scope._hideObj = false;
+
 				if(response.data==""){
 					pdfcr('#delivery_a4a5').modal(  {backdrop: 'static', keyboard: false, show: true});
 				}
@@ -1339,31 +1367,35 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 	
 	//on button click
 	$scope.loadreadymadecontent = function(){
-	
+		//waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
 		//number of pages call
 	    $http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_number_of_pages_entry'}}).then(function(response) {
 	        $scope.NumberOFPages = response.data.records;
-			$scope._hideObj = false;
-	    });
-		
-		//advert call
-	    $http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_advertisement_entry'}}).then(function(response) {
-	        $scope.advertisementEntry = response.data.records;
-			$scope._hideObj = false;
+			$scope._hideObj1 = false;
 	    });
 		//readymadecontent call
 	    $http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_readymade_entry'}}).then(function(response) {
+    		
+    		$scope._hideObj2 = false;
 	        $scope.readyMadeEntry = response.data.records;
-			$scope._hideObj = false;
+
+		
+
+	
+	    });		
+		//advert call
+	    $http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_advertisement_entry'}}).then(function(response) {
+	        $scope.advertisementEntry = response.data.records;
+			$scope._hideObj3 = false;
 	    });
+
 
 		setTimeout(function(){
 
 	    if(pdfcr('#step2wrap').is(":visible")){
 
 		    $http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_pdftpl_a4a5'}}).then(function(response) {
-		        //$scope.readyMadeEntry = response.data;
-				//$scope._hideObj = false;
+
 					if(response.data==""){
 						pdfcr('#delivery_a4a5').modal(  {backdrop: 'static', keyboard: false, show: true});
 					}
@@ -1423,7 +1455,7 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 	//get number of pages
 	$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_number_of_pages_entry'}}).then(function(response) {
 		$scope.NumberOFPages = response.data.records;
-		$scope._hideObj = false;
+		$scope._hideObj1 = false;
 	});
 		
 	
@@ -1443,24 +1475,37 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 	//readymadecontent
     $http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_readymade_entry'}}).then(function(response) {
         $scope.readyMadeEntry = response.data.records;
-		$scope._hideObj = false;
+		$scope._hideObj2 = false;
     });
 	
 	//addvertisement
     $http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_advertisement_entry'}}).then(function(response) {
 
         $scope.advertisementEntry = response.data.records;
-		$scope._hideObj = false;
+		$scope._hideObj3 = false;
     });
 	
 	//get Csv list
 	$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'view_csv_listbtn'}}).then(function(response) {
 		if(response.data.records!=""){
+			
+		$scope.csvwrap = false;			
 		$scope.csvData = response.data.records;
-		$scope.csvwrap = false;
-		setTimeout(function(){
-		pdfcr('#table_id').DataTable();
-		},1000);
+				
+		//csv table		
+		if(pdfcr('#csvloaderbtnwrap').is(":visible")){	
+		
+			setTimeout(function(){
+			pdfcr('#table_id').dataTable();
+			},2000);		
+			
+			
+		}			
+				
+		waitingDialog.hide();
+		
+	
+		
 		}
 	});	
 	
@@ -1471,7 +1516,7 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 			$scope.csvwrap = false;
 			setTimeout(function(){
 			pdfcr('#table_id').DataTable();
-			},1000);
+			},2000);
 		});			
 		
 		
@@ -1480,6 +1525,7 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 	var file_frame;
 	
     $scope.uploadFile = function(){
+	
 	
 		if ( file_frame ) {
 			file_frame.open();
@@ -1500,26 +1546,21 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 			if(attachment.mime!="text/csv"){
 				alert("File need to be CSV.")
 			}else{
+				waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
 				
 				$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'saveCSVfunction',csvurl:attachment.url}}).then(function(response) {
 		
 				pdfcr('#table_id').DataTable().destroy();
-	
-				
-				$scope.csvData = response.data.records;	
-				
-				
+				$scope.csvData = response.data.records;		
 				$timeout(function () {
 					pdfcr('#table_id').DataTable();
 				
 				}, 500);
 					
 				$scope.csvwrap = false;	
-			
-			
-			
 				$scope.csvwrap = false;	
-		
+	
+				waitingDialog.hide();		
 			
 				});
 			
@@ -1530,9 +1571,16 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 		
     };
 	
+	//delete csv table data row or all
 	$scope.deleteTableContent = function(value){
-			var table = pdfcr('#table_id').DataTable();
-						
+		
+		var followup = confirm("Are you sure you want to delete data/list?");
+		
+		if (followup != true) {
+			return false;
+		}		
+		
+		var table = pdfcr('#table_id').DataTable();						
 		var selected = [];
 		pdfcr('#table_id .datacheckboxes input:checked').each(function() {
 			selected.push(pdfcr(this).val());
@@ -1561,6 +1609,87 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 	
 		}); 
 					
+		
+	}
+	
+	//getping
+	
+	$scope.get_ping = function(){
+		
+		waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
+		
+		$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'pdftplgetPing'}}).then(function(response) {
+			
+			$scope.pingwrapAddedPing = false;
+			$scope.pingData = response.data.records;
+		
+			setTimeout(function(){
+			pdfcr('#pdftpl_ping_table').DataTable();
+			pdfcr('#getpingtpl').hide();
+			},1000);
+			
+			waitingDialog.hide();
+		
+		}); 		
+		
+		
+	}
+	
+		$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'pdftplgetPing'}}).then(function(response) {
+			
+			$scope.pingwrapAddedPing = false;
+			$scope.pingData = response.data.records;
+		
+			setTimeout(function(){
+			pdfcr('#pdftpl_ping_table').DataTable();
+			pdfcr('#getpingtpl').hide();
+			},1000);
+			
+			waitingDialog.hide();
+		
+		}); 	
+	
+	
+	//deletePing table data row or all
+	$scope.deletePing = function(value){
+		
+		var followup = confirm("Are you sure you want to delete data/list?");
+		
+		if (followup != true) {
+			return false;
+		}
+		
+		var table = pdfcr('#pdftpl_ping_table').DataTable();
+						
+		var selected = [];
+		pdfcr('#pdftpl_ping_table .datacheckboxes input:checked').each(function() {
+			selected.push(pdfcr(this).val());
+			var ind = pdfcr(this).val();
+
+			table
+			.row( pdfcr('#pdftpl_ping_table tbody #toRemovePing'+ind) )
+			.remove()
+			.draw();			
+			
+			
+		});			
+		
+
+		$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'deletePing',table_action:value,selected:selected.join()}}).then(function(response) {		
+		
+		//alert(response.data)
+		
+		if(value=="delete"){
+
+		
+		}else{
+			
+			$scope.pingwrap = true;
+			$scope.pingwrapAddedPing = true;
+		}	
+		
+		}); 
+		
 		
 	}
 
