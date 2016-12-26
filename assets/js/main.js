@@ -62,20 +62,12 @@ pdfcr(function(){
 
 			waitingDialog.hide()
 
-
-
-			if(pdfcr(this).text()=="Save Later" || pdfcr(this).text()=="Save" || pdfcr(this).text()=="Submit to Que" ){
-
-
-			//waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
-
-			}
 			 pdfcr('form button').removeAttr("clicked")
 			 pdfcr(this).attr("clicked", "true");
 
 		})
 		//step 1,3,4 form
-		pdfcr('#step1form,#step3form,#step4form').submit(function(event){
+		pdfcr('#step1form,#step3form').submit(function(event){
 			//pdfcr('#viewcsvlistbtn').show();
 			var thispage = pdfcr(this);
 			pdfcr('.returnDataprocess').remove();
@@ -284,7 +276,7 @@ pdfcr(function(){
 
 
 		//on radio change update pricing real time
-		pdfcr(document).on('click','#step3form .step3radio',function(){
+		pdfcr(document).on('click','#step3form .step3radio',function(event){
 			
 			waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
 			
@@ -320,10 +312,56 @@ pdfcr(function(){
 
 
 
+		//save later to que step 4
+		pdfcr(document).on('click','#step4form #savelaterform4',function(){
+
+			//pdfcr('.returnDataprocess').remove();
+			
+			waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
+			
+
+
+			var formdata = new FormData(document.getElementById('step4form'));
+
+			formdata.delete('action');
+			formdata.append('action', 'submittoque');
+			formdata.append('readymadeentry', pdfcr('.readymadeentry').length);
+			formdata.append('advertisemententry', pdfcr('.advertisemententry').length);
+			formdata.append('submitlater', 1);
+
+			pdfcr.ajax({
+				url: main_script_object.ajax_url,
+				type: pdfcr('#step3form').attr("method"),
+				data: formdata,
+				processData: false,
+				contentType: false,
+				success: function (datas)
+				{
+
+				//alert("dsadasdas")
+
+				waitingDialog.hide()
+				//alert(datas)
+				pdfcr('#step4form').before(datas);
+				
+			
+				pdfcr("html, body").animate({ scrollTop:pdfcr('.returnDataprocess').position().top+'px' });
+		
+
+				}
+
+
+			});
+
+
+		})
+
 		//submit to que step 4
-		pdfcr(document).on('click','#step4form .submittoque',function(){
+		pdfcr(document).on('submit','#step4form',function(event){
 
 			pdfcr('.returnDataprocess').remove();
+			
+			//waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
 
 
 			var formdata = new FormData(document.getElementById('step4form'));
@@ -357,6 +395,7 @@ pdfcr(function(){
 
 			});
 
+			return false;
 
 		})
 
@@ -700,7 +739,7 @@ pdfcr(function(){
 			var filefields = "<br /><input type='date' name='pp_date' data-provide='datepicker' class='datepicker' /><br />";
 			pdfcr('.pp_date').html(filefields);
 
-			pdfcr('.datepicker').datepicker();
+			pdfcr('.datepicker').datepicker({ dateFormat: 'dd-mm-yy' });
 
 		}else{
 
@@ -1635,19 +1674,19 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 		
 	}
 	
-		$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'pdftplgetPing'}}).then(function(response) {
+		// $http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'pdftplgetPing'}}).then(function(response) {
 			
-			$scope.pingwrapAddedPing = false;
-			$scope.pingData = response.data.records;
+		// 	$scope.pingwrapAddedPing = false;
+		// 	$scope.pingData = response.data.records;
 		
-			setTimeout(function(){
-			pdfcr('#pdftpl_ping_table').DataTable();
-			pdfcr('#getpingtpl').hide();
-			},1000);
+		// 	setTimeout(function(){
+		// 	pdfcr('#pdftpl_ping_table').DataTable();
+		// 	pdfcr('#getpingtpl').hide();
+		// 	},1000);
 			
-			waitingDialog.hide();
+		// 	waitingDialog.hide();
 		
-		}); 	
+		// }); 	
 	
 	
 	//deletePing table data row or all

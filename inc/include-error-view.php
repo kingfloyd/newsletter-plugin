@@ -2,7 +2,10 @@
 
 	$newsletter_id = $_REQUEST['newsletter_id'];
 	$ERRLIST = get_post_meta($newsletter_id,'pingError',true);
+	
 
+	
+	
 ?>
 
 
@@ -39,7 +42,9 @@
 				</tr>
 			</thead>
 
-			<?php foreach($ERRLIST as $k => $err): ?>
+			<?php
+
+			 foreach($ERRLIST as $k => $err): ?>
 			<tr>		  
 				<!--<td style="text-align:center;" class="datacheckboxes" ><input type="checkbox" name="tableline{{ x.line }}" value="{{ x.line }}" /></td>-->
 				<td style="text-align:center;">
@@ -77,7 +82,7 @@
 								
 									$arr = array_diff_key($pdftvtpl2_allfields_default, $err['View Data']);
 									$arr = array_merge($err['View Data'], $arr);
-									
+									  unset($arr['TIMEDATE']);
 									if(empty($arr)){
 										$arr =$err['View Data'];
 									}	
@@ -123,7 +128,7 @@
 		</div>-->
 		<script>
 			jQuery(document).ready(function(){
-				jQuery('#errorTable').dataTable();
+				jQuery('#errorTable').dataTable({order:[[0, 'desc']]});
 				jQuery(document).on('click','.viewdata',function(){
 					
 					var id = jQuery(this).attr('data-id');

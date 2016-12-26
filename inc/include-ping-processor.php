@@ -12,11 +12,17 @@ if(isset($_REQUEST['partner_id']) and  isset($_REQUEST['letter_password'])){
 
 	//check if there is empty values.
 
-	if(in_array_r("",$arr) || count($arr)>1){		
+	if(in_array_r("",$arr)){		
 		
 		$errFound[] = "Missing Data"; 	
 		
 	}
+	
+	if(count($arr)>1){
+	
+			
+		$errFound[] = "Data value should not be placeholder"; 	
+	}	
 	
 	//check if part and password good
 
@@ -24,9 +30,10 @@ if(isset($_REQUEST['partner_id']) and  isset($_REQUEST['letter_password'])){
 
 		//news letter id, error text, the $_POST or $_GET or $_REQUEST data
 
-		$errFound[] = "Password Incorrect"; 	
+		$errFound[] = "Partner_id or Password Incorrect"; 	
 		
 	}
+	
 
 	$NewsletterErr = get_post_meta($arr['newsletter_id'],'pingError',true);
 	

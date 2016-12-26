@@ -217,7 +217,7 @@ box-sizing: border-box !important;
 		});
 	  });
 
-		pdfcr('.datepicker').datepicker();
+		pdfcr('.datepicker').datepicker({ dateFormat: 'dd-mm-yy' });
 
 		//gridster start function
 
@@ -279,8 +279,8 @@ box-sizing: border-box !important;
 
 
 				}
-			}, shift_widgets_up: true,
-            shift_larger_widgets_down: true,
+			}, shift_widgets_up: false,
+            shift_larger_widgets_down: false,
             collision: {
                 wait_for_mouseup: false
             }
@@ -1053,10 +1053,10 @@ box-sizing: border-box !important;
 
 			</div>
 			<div class="col-md-3" style="padding:0; text-align:center;">
-				<button type="submit" name="step4button"  class="btn btn-danger navigatebtn" ng-click="loadreadymadecontent();">Save Later</button>
+				<button type="button" id="savelaterform4" name="step4button"  class="btn btn-danger navigatebtn" ng-click="loadreadymadecontent();">Save Later</button>
 			</div>
 			<div class="col-md-3" style="padding:0; text-align:center;">
-				<button type="button" name="step4button" class="btn btn-danger navigatebtn submittoque">Submit to Que</button>
+				<button type="submit" name="step4button" class="btn btn-danger navigatebtn submittoque">Submit to Que</button>
 			</div>
 			<div class="clearfix"></div>
 		</div>

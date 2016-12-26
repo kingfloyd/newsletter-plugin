@@ -796,91 +796,136 @@ function update_onradio(){
 function submittoque(){
 
 
-	$pid = $_POST['pid'];
-	$partnerid = $_POST['partner_id'];
-	$letter_password = $_POST['letter_password'];
-
+	$pid = $_REQUEST['pid'];
+	$partnerid = $_REQUEST['partner_id'];
+	$letter_password = $_REQUEST['letter_password'];
+	$pp_date = $_REQUEST['pp_date'];
 	$user_id = get_current_user_id();
 	global $current_user;
 	get_currentuserinfo();
+	
+	
+	if(isset($_REQUEST['submitlater']) && $_REQUEST['submitlater']==1){
+			foreach ($_POST as $key => $value) {
+				update_post_meta($pid, $key, $value);
+			}
 
 
-	foreach ($_POST as $key => $value) {
-		update_post_meta($pid, $key, $value);
+			$totalprice = number_format((float)get_post_meta($pid,'totalprice',true), 2, '.', '');
+			
+			echo $submit_return = "<div class='alert-success alert returnDataprocess'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>×</a>Newsletter Saved.<div id='hiddentotal' style='display:none;'>".$totalprice."</div></div>";
+			
+		exit;		
 	}
 
+	if(check_partner_account($partnerid,$letter_password)=='true'){
 
-	$totalprice = number_format((float)get_post_meta($pid,'totalprice',true), 2, '.', '');
+						
+			foreach ($_POST as $key => $value) {
+				update_post_meta($pid, $key, $value);
+			}
 
 
+			$totalprice = number_format((float)get_post_meta($pid,'totalprice',true), 2, '.', '');
 
-	/**
-	 *  Example API POST call
-	 *  Post a service to queue
-	 */
 
-	// type of service
-	$service = 'autonewsletter';
+			if($pp_date==""){
+				
+				$pp_date = date('m-d-y');
+			}
 
-	$data = array (
-	 "partner_id" => $partnerid,
-	 "password" => '',
-	 "deliver_to" => $current_user->user_firstname." ".$current_user->user_lastname,
-	 "cost" => $totalprice,
-	 "schedule" => date('m-d-y')
-	);
+			/**
+			 *  Example API POST call
+			 *  Post a service to queue
+			 */
 
-	// api post url
-	$url = 'http://connect.umbrellasupport.co.uk/'.$service.'/';
+			// type of service
+			$service = 'autonewsletter';
 
-	// set up the curl resource
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+			$data = array (
+			 "partner_id" => $partnerid,
+			 "password" => '',
+			 "deliver_to" => $current_user->user_firstname." ".$current_user->user_lastname,
+			 "cost" => $totalprice,
+			 "schedule" => $pp_date
+			);
 
-	// execute the request
-	$output = curl_exec($ch);
+			// api post url
+			$url = 'http://connect.umbrellasupport.co.uk/'.$service.'/';
 
-	// output the profile information - includes the header
-	//echo '<pre>';
+			// set up the curl resource
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
-	$output = json_decode($output, true);
-
+			// execute the request
+			$output = curl_exec($ch);
 	
-	if($output['success']==1){
-	update_post_meta($pid, 'status', 'live');
-	}
+			// output the profile information - includes the header
+			//echo '<pre>';
 
-	//echo($output) . PHP_EOL;
-	//echo '</pre>';
-	
+			$output = json_decode($output, true);
 
-	// close curl resource to free up system resources
-	curl_close($ch);
+			
+			if($output['success']==1){
+			update_post_meta($pid, 'status', 'live');
+			}
+
+			//echo($output) . PHP_EOL;
+			//echo '</pre>';
+			
+		//print_r($data);
+			// close curl resource to free up system resources
+			curl_close($ch);
 
 
-	echo $submit_return = "<div class='alert-success alert returnDataprocess'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>×</a>Data submitted to que!<div id='hiddentotal' style='display:none;'>".$totalprice."</div></div>";
+		if($output['success']!=1){
+				
+				if($output['process_message']==""){
+					$message = $output['message'];
+				}else{
+					
+					$message = $output['process_message'];
+				
+				}	
+				
+				
+			echo $submit_return = "<div class='alert-danger alert returnDataprocess'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>×</a>".$message."<div id='hiddentotal' style='display:none;'>".$totalprice."</div></div>";		
+				
+		}else{	
+			
+			echo $submit_return = "<div class='alert-success alert returnDataprocess'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>×</a>Data submitted to que!<div id='hiddentotal' style='display:none;'>".$totalprice."</div></div>";
+			
+		}
+			require_once(pdftvtpl2_plugin_path.'/MPDF57/mpdf.php');
+			require_once pdftvtpl2_plugin_path.'/helper/helper.php';
+			
+			
+			
+			if($partnerid!="" && $pid!="" && $output['success']==1){
+				$pdfpage_contents = get_post_meta($pid ,'pdfconverted_contents',true);	
+				$pdffile = helper_html_to_pdf_generate_file($pdfpage_contents, $extraCSS,$partnerid,$pid,1);
+				
+			}	
+				
+			
+			if($pdffile!=""){
+				
+				update_post_meta("pdffile".$pid."_partner".$partnerid, 'status', 'live');
+				
+			}
 	
-	require_once(pdftvtpl2_plugin_path.'/MPDF57/mpdf.php');
-	require_once pdftvtpl2_plugin_path.'/helper/helper.php';
-	
-	
-	
-	if($partnerid!="" && $pid!="" && $output['success']==1){
-		$pdfpage_contents = get_post_meta($pid ,'pdfconverted_contents',true);	
-		$pdffile = helper_html_to_pdf_generate_file($pdfpage_contents, $extraCSS,$partnerid,$pid,1);
+	}else{
+		
+		echo $submit_return = "<div class='alert-danger alert returnDataprocess'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>×</a>Validation error: Invalid Partner Id or Password</div></div>";		
+				
 		
 	}	
-		
 	
-	if($pdffile!=""){
-		
-		update_post_meta("pdffile".$pid."_partner".$partnerid, 'status', 'live');
-		
-	}
+	
 	exit;
 
 }
@@ -1196,6 +1241,7 @@ $appendtoObject = "";
 $countlist = count($customer_list);
 $i = 1;
 if(is_array($customer_list)){
+	rsort($customer_list);
 	foreach($customer_list as $index=>$customervalues){
 		
 		
@@ -1328,6 +1374,7 @@ $pid = $_REQUEST['pid'];
 		$countlist=count($csvlistnEW);
 		$i=1;	
 		if(is_array($csvlistnEW)){
+			rsort($csvlistnEW);
 			foreach($csvlistnEW as $index=>$customervalues){
 
 				$fullname = $customervalues['first_name']." ".$customervalues['last_name'];
@@ -1385,6 +1432,7 @@ function pdftplgetPing(){
 	$i = 1;
 	
 if(is_array($allping)){
+	rsort($allping);
 	foreach($allping as $index=>$customervalues){
 
 		$fullname = $customervalues['first_name']." ".$customervalues['last_name'];
