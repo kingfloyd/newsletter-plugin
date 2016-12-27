@@ -1402,7 +1402,7 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 
 		$http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_pdftpl_a4a5'}}).then(function(response) {
 
-				if(response.data==""){
+				if(response.data.match(/data is empty/g)){
 					pdfcr('#delivery_a4a5').modal(  {backdrop: 'static', keyboard: false, show: true});
 				}
 
@@ -1442,7 +1442,7 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 
 		    $http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'get_pdftpl_a4a5'}}).then(function(response) {
 
-					if(response.data==""){
+					if(response.data.match(/data is empty/g)){
 						pdfcr('#delivery_a4a5').modal(  {backdrop: 'static', keyboard: false, show: true});
 					}
 
@@ -1455,6 +1455,7 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 	$scope.addpdftpla4a5 = function(varselected){
 		
 	
+		waitingDialog.show('Loading', {dialogSize: 'sm', progressType: 'warning'});
 		
 	    $http({method:'post',url:main_script_object.ajax_url,params:{pid:main_script_object.newsletter_id,action:'add_pdftpl_a4a5',a4a5:varselected}}).then(function(response) {	
 		
@@ -1489,6 +1490,8 @@ app.controller('pdftpl2Ctrl', function($scope, $http, $timeout) {
 					$scope.deliveryType = response.data.records;
 					$scope.deliverytypechecked = main_script_object.pdftvtpl2_delivery_type;
 				});	
+				
+				waitingDialog.hide();
 								
 				
 	    });

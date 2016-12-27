@@ -1140,7 +1140,15 @@ function get_pdftpl_a4a5(){
 
 	$pid = $_REQUEST['pid'];
 
-	echo get_post_meta($pid,'get_pdftpl_a4a5',true);
+	if(get_post_meta($pid,'get_pdftpl_a4a5',true)!=""){
+		
+		print_r("data exist");
+		
+	}else{
+	
+		print_r("data is empty");
+	
+	}	
 
 	die();
 
