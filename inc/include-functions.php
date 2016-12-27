@@ -481,7 +481,7 @@ add_filter( 'excerpt_length', 'pdftpl2_excerpt_filter', 999 );
 
 function prefix_ajax_get_readymadeinnercontent($cat) {
 
- $readymadeid = $_POST['readymadeid'];
+ $readymadeid = $_REQUEST['readymadeid'];
 
 $content_post = get_post($readymadeid);
 $content = $content_post->post_content;
@@ -500,7 +500,7 @@ $content = str_replace(']]>', ']]&gt;', $content);
 
 function prefix_ajax_get_advertisementinnercontent($cat) {
 
- $add = $_POST['readymadeid'];
+ $add = $_REQUEST['readymadeid'];
 
 $content_post = get_post($add);
 $content = $content_post->post_content;
@@ -586,18 +586,24 @@ function process__pdftemplate_form(){
 
 	global $advertcost_size_array;
 
-	$pid = $_POST['pid'];
+	$pid = $_REQUEST['pid'];
 	$user_id = get_current_user_id();
 
 
-	foreach ($_POST as $key => $value) {
+	foreach ($_REQUEST as $key => $value) {
 		update_post_meta($pid, $key, $value);
 	}
+	
+	if($_REQUEST['step2']=="true"){
+		
+		update_post_meta($pid, 'step3', 'false');
+		update_post_meta($pid, 'step4', 'false');
+		
+	}	
 
+	if(isset($_REQUEST['readymadeentry'])){
 
-	if(isset($_POST['readymadeentry'])){
-
-		$readymadeentry_request = $_POST['readymadeentry'];
+		$readymadeentry_request = $_REQUEST['readymadeentry'];
 
 		if(intval($readymadeentry_request)==1){
 			$readymadeentry_cost = 0.35;
@@ -617,8 +623,8 @@ function process__pdftemplate_form(){
 	formdata.append('halfpage', halfpage);
 	formdata.append('fullpage', fullpage);
 */
-	if(isset($_POST['quarterpage'])){
-	$quarterpage = intVal($_POST['quarterpage'])*floatVal($advertcost_size_array['quarterpage']);
+	if(isset($_REQUEST['quarterpage'])){
+	$quarterpage = intVal($_REQUEST['quarterpage'])*floatVal($advertcost_size_array['quarterpage']);
 	}else{
 
 
@@ -635,9 +641,9 @@ function process__pdftemplate_form(){
 
 	}
 
-	if(isset($_POST['halfpage'])){
+	if(isset($_REQUEST['halfpage'])){
 
-	$halfpage = intVal($_POST['halfpage'])*floatVal($advertcost_size_array['halfpage']);
+	$halfpage = intVal($_REQUEST['halfpage'])*floatVal($advertcost_size_array['halfpage']);
 
 	}else{
 
@@ -654,9 +660,9 @@ function process__pdftemplate_form(){
 
 	}
 
-	if(isset($_POST['fullpage'])){
+	if(isset($_REQUEST['fullpage'])){
 
-	$fullpage = intVal($_POST['fullpage'])*floatVal($advertcost_size_array['fullpage']);
+	$fullpage = intVal($_REQUEST['fullpage'])*floatVal($advertcost_size_array['fullpage']);
 
 	}else{
 
@@ -703,16 +709,16 @@ function process__pdftemplate_form(){
 	echo $submit_return = "<div class='alert-success alert returnDataprocess'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>×</a>Data saved!<div id='hiddentotal' style='display:none;'>".$totalprice."</div></div>";
 
 
-	if(isset($_POST['templateorfile'])){
+	if(isset($_REQUEST['templateorfile'])){
 
-		if($_POST['templateorfile']=="file"){
+		if($_REQUEST['templateorfile']=="file"){
 
 			update_post_meta($pid, 'saved_as_file', 1);
 
 
 		}
 
-		if($_POST['templateorfile']=="template"){
+		if($_REQUEST['templateorfile']=="template"){
 
 			update_post_meta($pid, 'saved_as_template', 1);
 
@@ -733,18 +739,18 @@ function process__pdftemplate_form(){
 function update_onradio(){
 
 
-	$pid = $_POST['pid'];
+	$pid = $_REQUEST['pid'];
 
 	$user_id = get_current_user_id();
 
-	foreach ($_POST as $key => $value) {
+	foreach ($_REQUEST as $key => $value) {
 		update_post_meta($pid, $key, $value);
 	}
 
 
-	if(isset($_POST['readymadeentry'])){
+	if(isset($_REQUEST['readymadeentry'])){
 
-		$readymadeentry_request = $_POST['readymadeentry'];
+		$readymadeentry_request = $_REQUEST['readymadeentry'];
 
 		if(intval($readymadeentry_request)==1){
 
@@ -806,7 +812,8 @@ function submittoque(){
 	
 	
 	if(isset($_REQUEST['submitlater']) && $_REQUEST['submitlater']==1){
-			foreach ($_POST as $key => $value) {
+			
+			foreach ($_REQUEST as $key => $value) {
 				update_post_meta($pid, $key, $value);
 			}
 
@@ -821,7 +828,7 @@ function submittoque(){
 	if(check_partner_account($partnerid,$letter_password)=='true'){
 
 						
-			foreach ($_POST as $key => $value) {
+			foreach ($_REQUEST as $key => $value) {
 				update_post_meta($pid, $key, $value);
 			}
 
@@ -871,7 +878,9 @@ function submittoque(){
 
 			
 			if($output['success']==1){
+				
 			update_post_meta($pid, 'status', 'live');
+			
 			}
 
 			//echo($output) . PHP_EOL;
@@ -885,7 +894,9 @@ function submittoque(){
 		if($output['success']!=1){
 				
 				if($output['process_message']==""){
+					
 					$message = $output['message'];
+					
 				}else{
 					
 					$message = $output['process_message'];
@@ -906,6 +917,7 @@ function submittoque(){
 			
 			
 			if($partnerid!="" && $pid!="" && $output['success']==1){
+				
 				$pdfpage_contents = get_post_meta($pid ,'pdfconverted_contents',true);	
 				$pdffile = helper_html_to_pdf_generate_file($pdfpage_contents, $extraCSS,$partnerid,$pid,1);
 				
@@ -920,7 +932,15 @@ function submittoque(){
 	
 	}else{
 		
+		if($partnerid!="" && $letter_password!=""){
+				
 		echo $submit_return = "<div class='alert-danger alert returnDataprocess'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>×</a>Validation error: Invalid Partner Id or Password</div></div>";		
+		
+		}else{
+			
+		echo $submit_return = "<div class='alert-danger alert returnDataprocess'><a href='#' class='close' data-dismiss='alert' aria-label='close' title='close'>×</a>Validation error: Partner Id & Password are required.</div></div>";	
+			
+		}	
 				
 		
 	}	
@@ -979,9 +999,9 @@ function default_newsletter_shortcode_val(){
 	$user_id = get_current_user_id();
 
 
-	if(isset($_POST['pdftvtpl2_allfields_defaults_name'])){
+	if(isset($_REQUEST['pdftvtpl2_allfields_defaults_name'])){
 
-	if ( !isset( $_POST['pdftvtpl2_allfields_defaults_name'] ) || !wp_verify_nonce( $_POST['pdftvtpl2_allfields_defaults_name'], 'pdftvtpl2_allfields_defaults' ) ) {
+	if ( !isset( $_REQUEST['pdftvtpl2_allfields_defaults_name'] ) || !wp_verify_nonce( $_REQUEST['pdftvtpl2_allfields_defaults_name'], 'pdftvtpl2_allfields_defaults' ) ) {
 
 	   print 'Sorry, your nonce did not verify.';
 	   exit;
@@ -989,14 +1009,14 @@ function default_newsletter_shortcode_val(){
 	} else {
 
 
-		unset($_POST['pdftvtpl2_allfields_defaults_name']);
-		unset($_POST['_wp_http_referer']);
-		unset($_POST['submit']);
+		unset($_REQUEST['pdftvtpl2_allfields_defaults_name']);
+		unset($_REQUEST['_wp_http_referer']);
+		unset($_REQUEST['submit']);
 
 		echo "<div class=\"notice notice-success is-dismissible\">
         <p>Option update done.</p>
 		</div>";
-		update_option( 'pdftvtpl2_allfields_defaults'.$user_id , $_POST );
+		update_option( 'pdftvtpl2_allfields_defaults'.$user_id , $_REQUEST );
 
 	   // process form data
 	}

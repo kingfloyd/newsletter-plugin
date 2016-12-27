@@ -138,7 +138,8 @@ pdfcr(function(){
 			//alert(pdfcr('input[name=templateorfile]:checked').val())
 
 			//pdfcr('#step2form .navigatebtnlater').before('<img class="loadingImg" style="height: 20px; margin: 3px;" src="'+pdftvtpl2_plugin_url+'/assets/img/loading.gif">');
-
+			pdfcr('.navistep .step3wrap,.navistep .step4wrap').addClass('disabled');
+				
 			pdfcr('.returnDataprocess').remove();
 			var formtarget = pdfcr(this).attr('form-target');
 
@@ -1352,6 +1353,12 @@ pdfcr(function(){
 	}
 
 	//
+	
+	pdfcr(function() {
+   	pdfcr('#postdataVarData,#postdataVarUrl').click(function() {
+        SelectText(pdfcr(this).attr('id'));
+    });
+});
 
 }); //jeuqery document dom end
 
@@ -1745,3 +1752,21 @@ app.directive('customOnChange', function() {
     }
   };
 });
+
+function SelectText(element) {
+    var doc = document
+        , text = doc.getElementById(element)
+        , range, selection
+    ;    
+    if (doc.body.createTextRange) {
+        range = document.body.createTextRange();
+        range.moveToElementText(text);
+        range.select();
+    } else if (window.getSelection) {
+        selection = window.getSelection();        
+        range = document.createRange();
+        range.selectNodeContents(text);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+}

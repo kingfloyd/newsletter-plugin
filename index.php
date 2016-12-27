@@ -18,7 +18,9 @@ define('PREMETA','pdftvtpl2_');
 /**
  * This is the main dir path of the plugin
  */
-define('pdftvtpl2_plugin_url', get_site_url() . '/wp-content/plugins/pdf-templator-upgrade-v2.1'); // Example: /home/user/var/www/wordpress/wp-content/plugins/my-plugin/
+
+
+define('pdftvtpl2_plugin_url',plugins_url('',__FILE__)); // Example: /home/user/var/www/wordpress/wp-content/plugins/my-plugin/
 
 /**
  * Here you can setup settings of the plugin

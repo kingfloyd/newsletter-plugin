@@ -894,13 +894,13 @@ box-sizing: border-box !important;
 						<table id="httpstructure" class="table" style="width:100%;">
 							<tr>
 								<td>
-									<strong>Url:</strong> <?php echo site_url('create-newsletter'); ?>
+									<strong>Url:</strong> <span id='postdataVarUrl'><?php echo site_url('create-newsletter'); ?></span>
 								</td>
 
 							</tr>	
 							<tr>
 								<td>
-									<strong>Post Data:</strong> <?php echo generate_pdftvtpl2_httpvariable(); ?>
+									<strong>Post Data:</strong> <span id='postdataVarData'><?php echo generate_pdftvtpl2_httpvariable(); ?></span>
 								</td>						
 							</tr>
 						</table>				
