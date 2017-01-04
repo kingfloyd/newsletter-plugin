@@ -63,6 +63,7 @@ if(!function_exists('helper_html_to_pdf_preview_floyd')){
 		
 		$allpages = count($pdfconverted_contents)-1;
         $mpdf=new mPDF('utf-8', 'A4');
+        //$mpdf->restrictColorSpace = 1; 
         $mpdf->debug=false;
 
             // set header of the pdf

@@ -49,10 +49,26 @@ function pdftvtpl2__plugin_activate() {
 				'post_author'   => get_current_user_id(),
 				);
 
+
+				// add Letter page
+				
+				$letterpage = array(
+				'post_title'    => "Letter Page",
+				'post_type'     => 'page',
+				'post_name'     => 'pdftvpl2-letter',
+				'post_content'  => '[PDFTVTPL2_LETTER_PAGE]',
+				'post_status'   => 'publish',
+				'post_author'   => get_current_user_id(),
+				);
+				
 				// Insert the post into the database.
-				$parentpost_id = wp_insert_post( $my_post );	
+				$parentpost_id = wp_insert_post( $my_post );
+				$letterpage_id = wp_insert_post( $letterpage );	
+				
+				
 				
 				update_option( PREMETA.'news_letter_page', $parentpost_id);
+				update_option( PREMETA.'letter_page', $letterpage_id);
 				
 
 				// Gather post data.
@@ -65,10 +81,12 @@ function pdftvtpl2__plugin_activate() {
 				'post_author'   => get_current_user_id(),
 				);
 
+
+
 				// Insert the post into the database.
-				$parentpost_id = wp_insert_post( $my_post );	
+				$pdftvpl2Error = wp_insert_post( $my_post );	
 				
-				update_option( PREMETA.'news_letter_error_page', $parentpost_id);
+				update_option( PREMETA.'news_letter_error_page', $pdftvpl2Error);
 				
 								
 						
@@ -105,7 +123,10 @@ register_uninstall_hook(__FILE__, 'pdftvtpl2__plugin_deactivate');
 function pdftvtpl2__plugin_deactivate(){
 		
 	wp_delete_post( get_option(PREMETA.'news_letter_page') );
+	wp_delete_post( get_option(PREMETA.'letter_page') );
 	delete_option( PREMETA.'news_letter_page' );
+	delete_option( PREMETA.'letter_page' );
+	delete_option( PREMETA.'news_letter_error_page' );
 	
 	die(get_option(PREMETA.'news_letter_page'));
 	
